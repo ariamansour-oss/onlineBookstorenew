@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - Online Bookstore{% endblock %}
+
+{% block content %}
+<h2>Admin Dashboard</h2>
+
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-white bg-primary">
+            <div class="card-body">
+                <h5 class="card-title">Total Books</h5>
+                <h2>{{ total_books }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-success">
+            <div class="card-body">
+                <h5 class="card-title">Total Users</h5>
+                <h2>{{ total_users }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-info">
+            <div class="card-body">
+                <h5 class="card-title">Total Orders</h5>
+                <h2>{{ total_orders }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-warning">
+            <div class="card-body">
+                <h5 class="card-title">Total Revenue</h5>
+                <h2>${{ "%.2f"|format(total_revenue) }}</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-danger text-white">
+                <h5>Pending Orders</h5>
+            </div>
+            <div class="card-body">
+                <h2 class="text-center">{{ pending_orders }}</h2>
+                <a href="{{ url_for('orders') }}" class="btn btn-primary btn-sm">View All Orders</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-warning">
+                <h5>Low Stock Alert (< 10 units)</h5>
+            </div>
+            <div class="card-body">
+                {% if low_stock_books %}
+                    <ul>
+                        {% for book in low_stock_books %}
+                            <li>{{ book.title }} - Stock: {{ book.stock }}</li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>No low stock items.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h5>Recent Orders</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Customer</th>
+                        <th>Date</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in recent_orders %}
+                    <tr>
+                        <td>#{{ order.id }}</td>
+                        <td>{{ order.user.username }}</td>
+                        <td>{{ order.order_date.strftime('%Y-%m-%d') }}</td>
+                        <td>${{ "%.2f"|format(order.total_amount) }}</td>
+                        <td>
+                            <span class="badge bg-{% if order.status == 'pending' %}warning{% elif order.status == 'processing' %}info{% elif order.status == 'shipped' %}primary{% elif order.status == 'delivered' %}success{% else %}danger{% endif %}">
+                                {{ order.status }}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="{{ url_for('order_detail', order_id=order.id) }}" class="btn btn-sm btn-info">View</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

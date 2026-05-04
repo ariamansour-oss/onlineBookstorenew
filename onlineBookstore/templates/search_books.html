@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}Search Books - Online Bookstore{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h4>Search Filters</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+                    <div class="mb-3">
+                        {{ form.title.label(class="form-label") }}
+                        {{ form.title(class="form-control") }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.author.label(class="form-label") }}
+                        {{ form.author(class="form-control") }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.category.label(class="form-label") }}
+                        {{ form.category(class="form-control") }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.language.label(class="form-label") }}
+                        {{ form.language(class="form-control") }}
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ form.min_price.label(class="form-label") }}
+                            {{ form.min_price(class="form-control", placeholder="Min") }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            {{ form.max_price.label(class="form-label") }}
+                            {{ form.max_price(class="form-control", placeholder="Max") }}
+                        </div>
+                    </div>
+                    <div class="d-grid">
+                        {{ form.submit(class="btn btn-primary") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8">
+        <h3>Search Results</h3>
+        {% if search_performed %}
+            {% if books %}
+                <div class="row">
+                    {% for book in books %}
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ book.title }}</h5>
+                                <p class="card-text text-muted">by {{ book.author }}</p>
+                                <p class="card-text">
+                                    <strong>Category:</strong> {{ book.category }}<br>
+                                    <strong>Language:</strong> {{ book.language }}<br>
+                                    <strong>Price:</strong> ${{ "%.2f"|format(book.price) }}<br>
+                                    <strong>Stock:</strong> {{ book.stock }}
+                                </p>
+                            </div>
+                            <div class="card-footer bg-transparent">
+                                <a href="{{ url_for('book_detail', book_id=book.id) }}" class="btn btn-info btn-sm">Details</a>
+                                {% if 'user_id' in session and book.stock > 0 %}
+                                <a href="{{ url_for('add_to_cart', book_id=book.id) }}" class="btn btn-primary btn-sm">Add to Cart</a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-center text-muted">No books found matching your criteria.</p>
+            {% endif %}
+        {% else %}
+            <p class="text-center text-muted">Use the filters to search for books.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

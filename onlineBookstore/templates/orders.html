@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}My Orders - Online Bookstore{% endblock %}
+
+{% block content %}
+<h2>{% if session.role == 'admin' %}All Orders{% else %}My Orders{% endif %}</h2>
+
+{% if orders %}
+<div class="table-responsive">
+    <table class="table table-bordered">
+        <thead class="table-dark">
+            <tr>
+                <th>Order ID</th>
+                <th>Date</th>
+                {% if session.role == 'admin' %}
+                <th>Customer</th>
+                {% endif %}
+                <th>Total Amount</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+            <tr>
+                <td>#{{ order.id }}</td>
+                <td>{{ order.order_date.strftime('%Y-%m-%d %H:%M') }}</td>
+                {% if session.role == 'admin' %}
+                <td>{{ order.user.username }}</td>
+                {% endif %}
+                <td>${{ "%.2f"|format(order.total_amount) }}</td>
+                <td>
+                    <span class="badge bg-{% if order.status == 'pending' %}warning{% elif order.status == 'processing' %}info{% elif order.status == 'shipped' %}primary{% elif order.status == 'delivered' %}success{% else %}danger{% endif %}">
+                        {{ order.status }}
+                    </span>
+                </td>
+                <td>
+                    <a href="{{ url_for('order_detail', order_id=order.id) }}" class="btn btn-sm btn-info">View Details</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+    <div class="alert alert-info text-center">
+        <p>No orders found.</p>
+        <a href="{{ url_for('search_books') }}" class="btn btn-primary">Start Shopping</a>
+    </div>
+{% endif %}
+{% endblock %}
